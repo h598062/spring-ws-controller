@@ -20,7 +20,6 @@ public class LobbyController {
 
 	@GetMapping("/lobby")
 	public String getLobby() {
-
 		return "lobby";
 	}
 

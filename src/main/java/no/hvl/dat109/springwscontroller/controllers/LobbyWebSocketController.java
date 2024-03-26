@@ -18,6 +18,16 @@ import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * WebSocket controller for lobbyer<br>
+ * Håndterer meldinger fra spillerne og sender oppdatert status til alle i lobbyen<br>
+ * Meldinger fra klienter sendes til /lobby/*lobbyid* og servermeldinger broadcastes til /lobby/status/*lobbyid*<br>
+ * Meldinger som sendes til /lobby/status/*lobbyid* blir broadcastet til alle abonnenter på samme lobbyid<br>
+ * Server sender også meldinger til spillerne sine egne topics /spiller/*spillernavn* hvis det skjer noe feil etc med deres meldinger<br>
+ * Husk at alle inkommende requests blir håndtert i en egen tråd, så pass på concurrency og synkronisering<br>
+ * <br>
+ * Se {@link no.hvl.dat109.springwscontroller.websocket.LobbyWSConfig} for konfigurasjon av WebSocket endpoints
+ */
 @Controller
 public class LobbyWebSocketController {
 	private static final Logger logger = LoggerFactory.getLogger(LobbyWebSocketController.class);
@@ -26,6 +36,13 @@ public class LobbyWebSocketController {
 
 	private final SimpMessagingTemplate messagingTemplate;
 
+	/**
+	 * Konstruktør for Controlleren<br>
+	 * Autowirer lobbyService og messagingTemplate i konstruktøren som er den gode måten å gjøre det på
+	 *
+	 * @param lobbyService      service for lobbyen
+	 * @param messagingTemplate template for å sende meldinger
+	 */
 	@Autowired
 	public LobbyWebSocketController(LobbyService lobbyService, SimpMessagingTemplate messagingTemplate) {
 		this.lobbyService = lobbyService;
@@ -106,6 +123,15 @@ public class LobbyWebSocketController {
 		return spiller;
 	}
 
+	/**
+	 * Håndterer en trekk-melding fra en spiller i en lobby<br>
+	 * Server oppdaterer game-state og sender en oppdatert status til alle i lobbyen<br>
+	 *
+	 * @param lobbyId lobbyId som meldingen refererer til, denne hentes dynamisk fra path i request
+	 * @param message meldingen som skal håndteres, Spring parser denne fra JSON til SpillerTrekkMessage
+	 *
+	 * @return melding som skal broadcastes til alle i lobbyen, eller null hvis ingenting skal oppdateres
+	 */
 	@MessageMapping("/trekk/{lobbyId}")
 	@SendTo("/lobby/status/{lobbyId}")
 	public LobbyTrekkMessage lobbyTrekkHandler(@DestinationVariable String lobbyId,
@@ -137,20 +163,32 @@ public class LobbyWebSocketController {
 				logger.info("Spiller {} har raiset med {} i lobbyen {}", spiller.getNavn(), message.getMengde(),
 				            lobbyId);
 				logger.error("RAISE er ikke implementert");
+				// TODO: Implementer raise
 			}
 			case CALL -> {
 				logger.info("Spiller {} har callet i lobbyen {}", spiller.getNavn(), lobbyId);
 				logger.error("CALL er ikke implementert");
+				// TODO: Implementer call
 			}
 			case FOLD -> {
 				logger.info("Spiller {} har foldet i lobbyen {}", spiller.getNavn(), lobbyId);
 				logger.error("FOLD er ikke implementert");
+				// TODO: Implementer fold
 			}
 		}
 		return null;
 	}
 
-	// lobbyId hentes dynamisk fra path i request
+	/**
+	 * Håndterer en lobby-action-melding fra en spiller i en lobby<br>
+	 * Server oppdaterer lobby-state og sender en oppdatert status til alle i lobbyen<br>
+	 * Denne metoden oppdaterer spiller status etc i lobbyen<br>
+	 *
+	 * @param lobbyId lobbyId som meldingen refererer til, denne hentes dynamisk fra path i request
+	 * @param message meldingen som skal håndteres, Spring parser denne fra JSON til SpillerActionMessage
+	 *
+	 * @return melding som skal broadcastes til alle i lobbyen, eller null hvis ingenting skal oppdateres
+	 */
 	@MessageMapping("/action/{lobbyId}")
 	@SendTo("/lobby/status/{lobbyId}")
 	public LobbyActionMessage lobbyActionHandler(@DestinationVariable String lobbyId,
@@ -176,35 +214,43 @@ public class LobbyWebSocketController {
 			case JOIN -> {
 				logger.info("Spiller {} har joinet lobbyen {}", spiller.getNavn(), lobbyId);
 				logger.error("JOIN er ikke ferdig implementert");
+				// TODO: Ferdigstill join implementasjon
 				lobby.leggTilSpiller(spiller);
 				return new LobbyActionMessage(lobbyId, lobby.getSpillernesNavn(), spiller.getNavn(), Action.JOIN);
 			}
 			case LEAVE -> {
 				logger.info("Spiller {} har forlatt lobbyen {} ", spiller.getNavn(), lobbyId);
 				logger.error("LEAVE er ikke implementert");
+				// TODO: Implementer leave
 			}
 			case AFK -> {
 				logger.info("Spiller {} er AFK i lobbyen {} ", spiller.getNavn(), lobbyId);
 				logger.error("AFK er ikke implementert");
+				// TODO: Implementer AFK
 			}
 			case READY -> {
 				logger.info("Spiller {} er klar i lobbyen {} ", spiller.getNavn(), lobbyId);
 				logger.error("READY er ikke implementert");
+				// TODO: Implementer ready
 			}
 			case UNREADY -> {
 				logger.info("Spiller {} er ikke klar i lobbyen {} ", spiller.getNavn(), lobbyId);
 				logger.error("UNREADY er ikke implementert");
+				// TODO: Implementer unready
 			}
 			case DISCONNECT -> {
 				logger.info("Spiller {} har blitt disconnected i lobbyen {} ", spiller.getNavn(), lobbyId);
 				logger.error("DISCONNECT er ikke implementert");
+				// TODO: Implementer disconnect
 			}
 			case START -> {
 				logger.info("Spiller {} prøver å starte spillet i lobbyen {} ", spiller.getNavn(), lobbyId);
+				// TODO: Gjør ferdig start implementasjon
 				if (!lobby.isStartet()) {
 					if (lobby.getLobbyLeder().equals(spiller)) {
 						lobby.start();
-						return new LobbyActionMessage(lobbyId, lobby.getSpillernesNavn(), spiller.getNavn(), Action.START);
+						return new LobbyActionMessage(lobbyId, lobby.getSpillernesNavn(), spiller.getNavn(),
+						                              Action.START);
 					} else {
 						logger.warn("Spiller {} er ikke lobbyleder i lobbyen {}", spiller.getNavn(), lobbyId);
 					}
@@ -216,6 +262,7 @@ public class LobbyWebSocketController {
 			case END -> {
 				logger.info("Spiller {} prøver å stoppe spillet i lobbyen {} ", spiller.getNavn(), lobbyId);
 				logger.error("END er ikke implementert");
+				// TODO: Implementer end
 			}
 		}
 

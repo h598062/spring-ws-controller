@@ -6,6 +6,13 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+/**
+ * Konfigurasjon for WebSocket meldinger i lobbyen<br>
+ * endpoint for å koble til: /lobby-ws<br>
+ * meldinger som sendes til /lobby/*lobbyid* blir sendt til serveren og håndtert deretter i en controller<br>
+ * meldinger som sendes til /lobby/status/*lobbyid* blir broadcastet til alle abonnenter på samme lobbyid<br>
+ * meldinger som sendes til /spiller/*spillernavn* blir sendt til spilleren med navnet *spillernavn*
+ */
 @Configuration
 @EnableWebSocketMessageBroker
 public class LobbyWSConfig implements WebSocketMessageBrokerConfigurer {
