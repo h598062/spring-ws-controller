@@ -1,7 +1,12 @@
-package no.hvl.dat109.springwscontroller.lobby_demo.enums;
+package no.hvl.dat109.springwscontroller.enums;
 
-public enum SpillerStatus {
-	JOINED, LEFT, AFK, READY, NOT_READY, DISCONNECTED
+public enum Action {
+	JOIN, LEAVE, AFK, READY, UNREADY, DISCONNECT, START, END
+
+	// START og STOPP er for lobbyleder, for å starte og stoppe spillet
+
+
+	// GAMMEL fra før jeg endret på struktur
 	// JOINED -> impliserer NOT_READY, spiller må manuelt trykke ready
 	// AFK brukes i runder
 	// NOT_READY brukes i lobby, er implisert når en er i en runde og er AFK

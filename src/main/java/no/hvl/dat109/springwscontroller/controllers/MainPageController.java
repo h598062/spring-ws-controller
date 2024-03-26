@@ -1,6 +1,9 @@
-package no.hvl.dat109.springwscontroller.lobby_demo;
+package no.hvl.dat109.springwscontroller.controllers;
 
-import no.hvl.dat109.springwscontroller.lobby_demo.service.LobbyService;
+import no.hvl.dat109.springwscontroller.lobby.Lobby;
+import no.hvl.dat109.springwscontroller.exceptions.LobbyAlreadyExistsException;
+import no.hvl.dat109.springwscontroller.lobby.Spiller;
+import no.hvl.dat109.springwscontroller.service.LobbyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -51,7 +53,7 @@ public class MainPageController {
 		}
 		if (errors.isEmpty()) {
 			ra.addFlashAttribute("lobbyId", lobbyId);
-			ra.addFlashAttribute("spiller", lobbyLeder);
+			ra.addFlashAttribute("spillerNavn", lobbyLeder);
 			return "redirect:/lobby";
 		} else {
 			ra.addFlashAttribute("errors", errors);
@@ -80,7 +82,7 @@ public class MainPageController {
 		}
 		if (errors.isEmpty()) {
 			ra.addFlashAttribute("lobbyId", lobbyId);
-			ra.addFlashAttribute("spiller", spillerNavn);
+			ra.addFlashAttribute("spillerNavn", spillerNavn);
 			return "redirect:/lobby";
 		} else {
 			ra.addFlashAttribute("errors", errors);

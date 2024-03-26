@@ -1,6 +1,6 @@
-package no.hvl.dat109.springwscontroller.lobby_demo.message;
+package no.hvl.dat109.springwscontroller.message;
 
-import no.hvl.dat109.springwscontroller.lobby_demo.enums.Trekk;
+import no.hvl.dat109.springwscontroller.enums.Trekk;
 
 public class SpillerTrekkMessage extends SpillerMessage {
 	private Trekk trekk;
@@ -16,6 +16,11 @@ public class SpillerTrekkMessage extends SpillerMessage {
 		this.mengde = 0;
 		this.trekk = trekk;
 	}
+
+	/**
+	 * Tom konstruktør for serialisering<br>
+	 * Lager du meldingen selv, bruk konstruktøren med parametre.
+	 */
 	public SpillerTrekkMessage() {
 	}
 
@@ -38,9 +43,9 @@ public class SpillerTrekkMessage extends SpillerMessage {
 	@Override
 	public String toString() {
 		return "SpillerTrekkMessage{" +
-				"spiller='" + getSpiller() +
-				", trekk=" + trekk +
-				", mengde=" + mengde +
-				'}';
+		       "spiller='" + getSpillerNavn() + '\'' +
+		       ", trekk=" + getTrekk() +
+		       ", mengde=" + getMengde() +
+		       '}';
 	}
 }
